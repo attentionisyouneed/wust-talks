@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>武科大宣讲会</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-row">
+    <button class="back-btn hidden" id="appbar-back" aria-label="返回">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <span>返回</span>
+    </button>
+    <div class="brand" id="appbar-brand">
+      <div class="brand-mark" aria-hidden="true">武</div>
+      <div class="brand-text">
+        <h1>武科大宣讲会</h1>
+      </div>
+    </div>
+    <div class="appbar-title hidden" id="appbar-title">宣讲详情</div>
+    <div class="appbar-actions">
+      <button class="sync-pill" id="btn-sync-official" title="同步学校就业网最新宣讲会">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        <span id="btn-sync-label">同步官网</span>
+      </button>
+      <button class="icon-btn" id="btn-theme" title="切换外观主题" aria-label="切换主题"></button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <!-- 首页：Apple Editorial Large Title + 21st.dev Bento -->
+  <section id="view-home" class="view">
+    <div class="editorial-head">
+      <div class="eyebrow-row">
+        <div class="eyebrow-date" id="hero-date"></div>
+        <div class="sync-indicator">
+          <span class="dot"></span>
+          <span id="hero-sync-badge">官网实时数据</span>
+        </div>
+      </div>
+      <h2 class="display-title" id="hero-greeting">校园宣讲日程</h2>
+      <p class="display-sub" id="hero-sub">武汉科技大学本科生就业信息网实时排期，支持下拉或点击右上角同步</p>
+
+      <div class="search-stack">
+        <div class="searchbox">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/></svg>
+          <input id="home-search" type="search" enterkeyhint="search" placeholder="搜索企业、岗位、专业或教室…" autocomplete="off">
+          <button class="clear hidden" id="home-search-clear" aria-label="清空搜索">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+          <button class="sr-only" id="home-search-go" tabindex="-1" aria-hidden="true">搜索</button>
+        </div>
+        <div class="hot-words" id="hot-words"></div>
+      </div>
+    </div>
+
+    <!-- 21st.dev Bento Overview -->
+    <div class="bento-grid">
+      <div class="bento-primary" id="spotlight-wrap"></div>
+      <div class="bento-stats" id="hero-stats"></div>
+    </div>
+
+    <!-- 日期轴与范围切换 -->
+    <div class="scrubber-panel">
+      <div class="scrubber-top">
+        <span class="scrubber-label">未来 14 天排期</span>
+        <button class="more-link" id="home-to-filter">
+          <span>多维筛选</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+      <div class="datestrip" id="date-strip"></div>
+      <div class="chips scroll scope-bar" id="quick-chips"></div>
+    </div>
+
+    <div class="two-col">
+      <div class="col-main">
+        <div class="section" id="home-feed-sec">
+          <div class="section-h">
+            <h3 id="home-feed-title">近期待举办宣讲</h3>
+            <span class="count" id="home-feed-count"></span>
+          </div>
+          <div class="list grid2" id="home-feed-list"></div>
+        </div>
+      </div>
+
+      <aside class="col-side">
+        <div class="section" id="pref-cta-wrap"></div>
+
+        <div class="section">
+          <div class="panel">
+            <div class="panel-head">
+              <h4>未来 7 天场次节奏</h4>
+              <span class="sub">点选查看单日</span>
+            </div>
+            <div class="week-bars" id="home-week-bars"></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="panel">
+            <div class="panel-head">
+              <h4>大型双选会与专场</h4>
+              <span class="sub" id="jobfairs-count"></span>
+            </div>
+            <div class="fairs" id="jobfairs-list"></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 筛选页 -->
+  <section id="view-filter" class="view hidden">
+    <div class="page-head">
+      <h2>多维筛选</h2>
+      <p>校区、24 个学院与 76 个本科专业联动检索，支持 90 天内闭区间日期查询</p>
+    </div>
+
+    <div class="filter-layout">
+      <aside class="filter-side collapsed" id="filter-side">
+        <button class="filter-toggle" id="filter-toggle">
+          <span>筛选条件</span>
+          <span class="filter-toggle-right">
+            <span class="n" id="filter-toggle-n">展开</span>
+            <svg class="toggle-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+        </button>
+
+        <div class="fgroups panel grouped-filter">
+          <div class="fgroup">
+            <div class="fgroup-h">
+              <b>关键词</b>
+              <span>即时过滤</span>
+            </div>
+            <div class="searchbox inline">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/></svg>
+              <input id="filter-search" placeholder="企业、岗位、专业、地点…" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="fgroup">
+            <div class="fgroup-h">
+              <b>时间范围</b>
+              <span>单选</span>
+            </div>
+            <div class="chips" id="f-time"></div>
+            <div id="f-custom-wrap" class="hidden">
+              <div class="date-row">
+                <input type="date" id="f-date-from">
+                <span class="date-sep">至</span>
+                <input type="date" id="f-date-to">
+              </div>
+              <div class="fhint" id="f-date-hint">闭区间含结束日全天，跨度不超过 90 天</div>
+            </div>
+          </div>
+
+          <div class="fgroup">
+            <div class="fgroup-h">
+              <b>举办校区</b>
+              <span>可多选</span>
+            </div>
+            <div class="chips" id="f-campus"></div>
+          </div>
+
+          <div class="fgroup">
+            <div class="fgroup-h">
+              <b>学院（24）</b>
+              <span>选择后联动专业</span>
+            </div>
+            <div class="chips" id="f-college"></div>
+            <button class="collapse-btn hidden" id="f-college-more"></button>
+          </div>
+
+          <div class="fgroup">
+            <div class="fgroup-h">
+              <b>本科专业</b>
+              <span id="f-major-hint">请先选学院</span>
+            </div>
+            <div class="chips" id="f-major"></div>
+          </div>
+
+          <div class="fgroup">
+            <div class="fgroup-h">
+              <b>岗位类别</b>
+              <span>9 大方向</span>
+            </div>
+            <div class="chips" id="f-job"></div>
+          </div>
+
+          <div class="fgroup">
+            <div class="fgroup-h">
+              <b>所属行业</b>
+              <span>可多选</span>
+            </div>
+            <div class="chips" id="f-industry"></div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="filter-results">
+        <div class="result-bar">
+          <div class="n" id="f-result-count">共 <b>0</b> 场</div>
+          <div class="result-controls">
+            <div class="seg" id="f-sort-seg">
+              <button data-sort="time" class="active">按时间</button>
+              <button data-sort="match">按匹配度</button>
+            </div>
+            <div class="seg" id="f-group-seg">
+              <button data-group="grid" class="active">卡片</button>
+              <button data-group="date">按日分组</button>
+            </div>
+            <button class="chip sm" id="f-apply-pref">套用偏好</button>
+            <button class="chip sm" id="f-include-expired">含已结束</button>
+            <button class="link" id="f-clear">重置</button>
+          </div>
+        </div>
+
+        <div class="active-tags" id="f-active-tags"></div>
+        <div id="f-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 日历页 -->
+  <section id="view-calendar" class="view hidden">
+    <div class="page-head">
+      <h2>宣讲日历</h2>
+      <p>按月浏览排期密度与取消状态，点选日期查看当日安排</p>
+    </div>
+
+    <div class="cal-layout">
+      <div class="calendar panel">
+        <div class="cal-head">
+          <b id="cal-title">2026 年 11 月</b>
+          <div class="cal-nav">
+            <button class="btn line sm icon-only" id="cal-prev" aria-label="上个月">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button class="btn ghost sm" id="cal-today">今天</button>
+            <button class="btn line sm icon-only" id="cal-next" aria-label="下个月">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="cal-legend">
+          <span><i></i>正常排期</span>
+          <span><i class="c"></i>含已取消场次</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-h">
+          <h3 id="cal-day-title">当日场次</h3>
+          <span class="count" id="cal-day-count"></span>
+        </div>
+        <div class="list" id="cal-day-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 详情页 -->
+  <section id="view-detail" class="view hidden">
+    <div class="detail" id="detail-content"></div>
+  </section>
+
+  <!-- 个人中心页 -->
+  <section id="view-profile" class="view hidden">
+    <div class="page-head">
+      <h2>我的偏好</h2>
+      <p id="me-pref-sub">配置学院、专业与意向方向，自动计算每场宣讲匹配度</p>
+    </div>
+
+    <div class="panel me-card">
+      <div class="me-id">
+        <div class="avatar">武</div>
+        <div class="me-meta">
+          <h3>武科大求职助手</h3>
+          <span>数据保存在本机，支持离线查阅与一键同步</span>
+        </div>
+      </div>
+      <div class="me-stats" id="me-stats"></div>
+    </div>
+
+    <div class="section">
+      <div class="panel">
+        <div class="panel-head">
+          <h4>求职偏好配置</h4>
+          <span class="sub" id="pref-progress-text">0 / 4</span>
+        </div>
+        <div class="progress"><i id="pref-progress-bar" style="width:0%"></i></div>
+        <div class="steps-wrap" id="pref-steps"></div>
+        <div class="panel-actions">
+          <button class="btn primary sm" id="btn-use-pref">按偏好查看宣讲</button>
+          <button class="btn line sm" id="btn-clear-pref">清空偏好</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="me-collections-sec">
+      <div class="panel">
+        <div class="panel-head">
+          <h4>收藏与足迹</h4>
+          <div class="seg" id="me-tab-seg">
+            <button data-tab="fav" class="active">收藏</button>
+            <button data-tab="hist">足迹</button>
+          </div>
+        </div>
+        <div id="me-tab-body"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="panel">
+        <div class="panel-head">
+          <h4>数据与外观</h4>
+        </div>
+        <div class="settings">
+          <div class="set-row">
+            <div class="ii"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></div>
+            <div class="tt"><b>同步就业网最新排期</b><span id="sync-status-text">从武汉科技大学本科生就业信息网拉取最新场次</span></div>
+            <button class="btn primary sm" id="btn-sync-profile">同步</button>
+          </div>
+          <div class="set-row">
+            <div class="ii"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg></div>
+            <div class="tt"><b>云端自动源（替代 Muse）</b><span id="cloud-url-status">支持 GitHub Actions 定时源与手机自动静默更新</span></div>
+            <button class="btn line sm" id="btn-config-cloud">配置</button>
+          </div>
+          <div class="set-row">
+            <div class="ii"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></div>
+            <div class="tt"><b>外观模式</b><span>跟随系统或固定浅色 / 深色</span></div>
+            <div class="seg" id="set-theme">
+              <button data-theme="auto">自动</button>
+              <button data-theme="light">浅色</button>
+              <button data-theme="dark">深色</button>
+            </div>
+          </div>
+          <div class="set-row">
+            <div class="ii"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></div>
+            <div class="tt"><b>访问学校就业信息网</b><span>在外部浏览器打开官方站点</span></div>
+            <button class="btn line sm" id="btn-open-official">打开</button>
+          </div>
+          <div class="set-row">
+            <div class="ii"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+            <div class="tt"><b>还原本地数据</b><span>清除收藏、求职偏好、浏览记录与同步缓存</span></div>
+            <button class="btn danger sm" id="btn-reset-local">还原</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot-note">
+    数据来源 · <span id="foot-source">武汉科技大学本科生就业信息网</span>
+  </footer>
+</main>
+
+<!-- 悬浮底部渐变遮罩，实现 Apple HIG Scroll Edge Effect -->
+<div class="scroll-edge-fade" aria-hidden="true"></div>
+
+<!-- 详情页 Liquid Glass 底部悬浮栏 -->
+<div class="d-bottom hidden" id="detail-bottom">
+  <button class="btn secondary-glass" id="db-ics">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+    <span>加入日历</span>
+  </button>
+  <button class="btn primary" id="db-fav">收藏宣讲会</button>
+</div>
+
+<!-- 底部 Liquid Glass 悬浮胶囊导航 -->
+<nav class="tabbar" id="tabbar" aria-label="主导航">
+  <button data-page="home" class="active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1z"/></svg>
+    <span>日程</span>
+  </button>
+  <button data-page="filter">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"><path d="M4 7h16M7 12h10M10 17h4"/></svg>
+    <span>筛选</span>
+  </button>
+  <button data-page="calendar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+    <span>日历</span>
+  </button>
+  <button data-page="profile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.8"/><path d="M5 20.5c.8-3.6 3.5-5.5 7-5.5s6.2 1.9 7 5.5"/></svg>
+    <span>我的</span>
+    <span class="tab-badge hidden" id="tab-fav-badge">0</span>
+  </button>
+</nav>
+
+<!-- 抽屉弹窗 Sheet (Liquid Glass) -->
+<div class="sheet-mask hidden" id="sheet-mask">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<!-- 顶部轻提示 Toast (Liquid Glass) -->
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span id="toast-msg"></span>
+</div>
+
+<script src="./demo-data.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
